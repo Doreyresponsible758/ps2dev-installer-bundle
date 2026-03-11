@@ -302,6 +302,8 @@ Even with `ps2sdk-ports` included, some repos may still need project-specific th
 
 ## Maintainer release workflow
 
+The repository also includes an automatic `Smoke Checks` workflow on pushes to `master` and on pull requests. It validates shell syntax, PowerShell launcher syntax, and the release ZIP layout. Keep that workflow green before cutting a release.
+
 The repository includes a manual GitHub Actions release workflow:
 
 1. Push the commit you want to release.
