@@ -4,6 +4,8 @@ This bundle installs a full PlayStation 2 homebrew development environment on Ub
 
 ## Files in this bundle
 
+- `ps2dev_aio_installer.bat` — double-clickable Windows launcher for WSL users
+- `ps2dev_aio_installer.ps1` — Windows-side WSL handoff into the bundle directory
 - `ps2dev_aio_installer.sh` — thin entrypoint that calls `install.sh`
 - `install.sh` — main automated installer
 - `uninstall.sh` — removes the installed environment and shell profile block
@@ -34,6 +36,16 @@ This bundle installs a full PlayStation 2 homebrew development environment on Ub
 
 ## Usage
 
+### Windows + WSL (recommended for this bundle)
+
+Double-click `ps2dev_aio_installer.bat` from Windows Explorer.
+
+That launcher calls `ps2dev_aio_installer.ps1`, finds an Ubuntu WSL distro, switches into this bundle directory inside WSL, and runs the existing installer automatically.
+
+If no Ubuntu WSL distro is installed, the launcher stops with an error and asks you to install Ubuntu first.
+
+### Inside Ubuntu directly
+
 Run the installer:
 
 ```bash
@@ -47,7 +59,7 @@ Or directly:
 ./install.sh
 ```
 
-After the installer finishes:
+If you want the environment in the same Ubuntu shell session after running manually:
 
 ```bash
 source ~/.bashrc
