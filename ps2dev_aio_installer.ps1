@@ -62,8 +62,18 @@ function Test-UbuntuDistro {
         return $false
     }
 
-    & wsl.exe -d $Distro bash -lc "grep -qiE '(^ID=ubuntu$|^ID_LIKE=.*ubuntu)' /etc/os-release" 2>$null | Out-Null
-    return ($LASTEXITCODE -eq 0)
+    $osRelease = & wsl.exe -d $Distro cat /etc/os-release 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+
+    foreach ($line in $osRelease) {
+        if ($line -match '^ID=ubuntu$' -or $line -match '^ID_LIKE=.*ubuntu') {
+            return $true
+        }
+    }
+
+    return $false
 }
 
 function Get-UbuntuDistro {
@@ -84,10 +94,12 @@ function Get-UbuntuDistro {
         Fail "No WSL distributions were found. Install Ubuntu in WSL and try again."
     }
 
+    Write-Status -Tag 'INFO' -Message ("WSL distributions found: " + ($distros -join ', ')) -Color DarkGray
+
     if ($PreferredDistro) {
         $preferredMatch = $distros | Where-Object { $_ -eq $PreferredDistro } | Select-Object -First 1
         if ($preferredMatch) {
-            if (Test-UbuntuDistro -Distro $preferredMatch) {
+            if ((Test-UbuntuDistro -Distro $preferredMatch) -or $preferredMatch -match '(?i)ubuntu') {
                 return $preferredMatch
             }
 
@@ -96,7 +108,7 @@ function Get-UbuntuDistro {
     }
 
     $defaultDistro = Get-DefaultWslDistro
-    if (Test-UbuntuDistro -Distro $defaultDistro) {
+    if ((Test-UbuntuDistro -Distro $defaultDistro) -or ($defaultDistro -and $defaultDistro -match '(?i)ubuntu')) {
         return $defaultDistro
     }
 
@@ -105,7 +117,12 @@ function Get-UbuntuDistro {
         return $ubuntuDistro
     }
 
-    Fail "No Ubuntu WSL distribution was found. Install Ubuntu for WSL and try again."
+    $namedUbuntuDistro = $distros | Where-Object { $_ -match '(?i)ubuntu' } | Select-Object -First 1
+    if ($namedUbuntuDistro) {
+        return $namedUbuntuDistro
+    }
+
+    Fail "No Ubuntu WSL distribution was found. Install Ubuntu for WSL and try again. Detected distributions: $($distros -join ', ')"
 }
 
 function Get-WslShareInfo {
